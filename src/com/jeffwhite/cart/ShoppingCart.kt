@@ -2,11 +2,14 @@ package com.jeffwhite.cart
 
 import com.jeffwhite.cart.ItemInventory
 import com.jeffwhite.cart.SalesItem
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
 class ShoppingCart(
-    var items:Map<SalesItemType, SalesItem> = mutableMapOf<SalesItemType, SalesItem>()
-)
+    val itemInventory: ItemInventory)
 {
+    var items:Map<SalesItemType, SalesItem> = mutableMapOf<SalesItemType, SalesItem>()
+
     fun addSalesItem(itemType: SalesItemType, count: Int = 1): Unit {
 
         when (items.containsKey(itemType)) {
@@ -24,9 +27,9 @@ class ShoppingCart(
 
     private fun getSalesItemFromInventory(itemType: SalesItemType, count: Int = 1): SalesItem {
 
-        val result: SalesItem = when (ItemInventory.items.containsKey(itemType)) {
+        val result: SalesItem = when (itemInventory.items.containsKey(itemType)) {
             true -> {
-                ItemInventory.items.get(itemType)!!
+                itemInventory.items.get(itemType)!!
             }
             else -> {
                 throw RuntimeException("Item [$itemType] not found in Inventory")
@@ -36,7 +39,7 @@ class ShoppingCart(
     }
 
     fun totalise():Int {
-        val listOfPrices = items.flatMap{(_,v) -> listOf(v.itemCount * v.priceIn100s)}
+        val listOfPrices = items.flatMap{(_,v) -> listOf(v.calculateItemTotal())}
         val total = listOfPrices.fold(0,{ total, next -> total + next })
         return total
     }
@@ -44,7 +47,7 @@ class ShoppingCart(
     fun totalFormattedInPounds(): String {
         val pounds = totalise()/100
         val pence = totalise()%100
-        return "$pounds.$pence%02.0f"
+        return "$pounds.%02d".format(pence)
     }
 
     fun itemCount(): Int = items.flatMap{(_,v) -> listOf(v.itemCount)}.fold(0,{ total, next -> total + next })
