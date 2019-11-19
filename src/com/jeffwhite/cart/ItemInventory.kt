@@ -2,9 +2,9 @@ package com.jeffwhite.cart
 
 import com.jeffwhite.cart.SalesItemType
 
-object ItemInventory
+class ItemInventory
 {
-  var items:Map<SalesItemType, SalesItem> = mapOf()
+  var items:Map<SalesItemType, SalesItem> = mutableMapOf<SalesItemType, SalesItem>()
 
   fun addItemToInventory(item: SalesItem): Unit {
 
